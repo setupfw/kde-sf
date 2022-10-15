@@ -1,0 +1,9 @@
+#!/bin/bash
+if [ "$SYSTEM_DISABLE_SELINUX" = 1 ]; then
+    sudo setenforce 0
+    sudo sed -i 's/^SELINUX=.*$/SELINUX=disabled/' /etc/selinux/config
+fi
+
+if [ "$SYSTEM_FAST_SHUTDOWN" = 1 ]; then
+    sudo sed -i '/DefaultTimeoutStopSec/{s/#//;s/=90s/=10s/}' /etc/systemd/system.conf
+fi

@@ -1,0 +1,31 @@
+#!/bin/bash
+
+sudo dnf config-manager --save --setopt=defaultyes=1
+sudo dnf config-manager --save --setopt=fastestmirror=True
+sudo dnf makecache
+
+if [ "$DNF_DROP_LIBREOFFICE" = 1 ]; then
+    sudo dnf remove -y libreoffice*
+fi
+
+sudo dnf in -y 'dnf-command(versionlock)'
+if [ "$DNF_LOCK_KERNEL" = 1 ]; then
+    sudo dnf versionlock add kernel{,-core,-headers} linux-firmware
+fi
+
+if [ "$DNF_ADD_TLP" = 1 ]; then
+    sudo dnf install -y tlp
+    sudo systemctl enable tlp.service --now
+fi
+
+if [ "$DNF_ADD_VIRT" = 1 ]; then
+    sudo dnf in -y @virtualization
+    sudo systemctl enable --now virtnetworkd
+    dconf write /org/virt-manager/virt-manager/xmleditor-enabled true
+fi
+
+if [ "$DNF_ADD_TIMESHIFT" = 1 ]; then
+    sudo dnf install -y timeshift
+fi
+
+sudo dnf upgrade -y

@@ -1,0 +1,34 @@
+#!/bin/bash
+set -e
+cd $(dirname $0)
+
+. config
+for cfg in $(find . -maxdepth 1 -name 'config-*'); do
+    . $cfg
+done
+
+. lib/config-check
+
+printf 'Confirm to setup? (Y/n) '
+read r
+case $r in
+'' | y | Y) ;;
+*) exit ;;
+esac
+
+echo '==> Begin to setup'
+
+./lib/tweak-system
+./lib/tweak-kde
+./lib/tweak-pkgs
+
+echo '==> Finish'
+
+printf 'Reboot to apply? (Y/n) '
+read r
+case $r in
+'' | y | Y) ;;
+*)
+    sudo reboot
+    ;;
+esac

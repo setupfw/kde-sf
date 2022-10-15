@@ -1,0 +1,59 @@
+#!/bin/bash
+
+define() {
+    kwriteconfig5 --file $target $1 $2 $3
+}
+
+if [ "$KDE_PREFER_HOTCORNER" = 1 ]; then
+    target=kwinrc
+    define ElectricBorders TopLeft ApplicationLauncher
+    define ElectricBorders TopRight KRunner
+    define Effect-desktopgrid BorderActivate 5
+    define Effect-windowview BorderActivate 3
+fi
+
+if [ "$KDE_DOUBLE_CLICK" = 1 ]; then
+    target=kdeglobals
+    define KDE SingleClick false
+fi
+
+if [ "$KDE_SHUTDOWN_DIRECTLY" = 1 ]; then
+    target=ksmserverrc
+    define General confirmLogout false
+fi
+
+if [ "$KDE_OPTIMIZE_APPEARANCE" = 1 ]; then
+    target=kwinrc
+
+    define TabBox ApplicationsMode 1
+    define Plugins overviewEnabled true
+    define Windows BorderlessMaximizedWindows true
+
+    define Plugins kwin4_effect_dimscreenEnabled true
+    define Windows Placement UnderMouse
+    define org.kde.kdecoration2 ButtonsOnLeft MSF
+    define Plugins slidebackEnabled true
+
+    define MouseBindings CommandAllWheel 'Change Opacity'
+
+    define MouseBindings CommandActiveTitlebar2 Close
+    define MouseBindings CommandInactiveTitlebar2 Close
+    define MouseBindings CommandTitlebarWheel Raise/Lower
+
+    target=kcminputrc
+    define Mouse cursorSize 36
+
+    target=breezerc
+    define Style MnemonicsMode MN_ALWAYS
+    define Style ScrollBarAddLineButtons 1
+    define Style ScrollBarSubLineButtons 1
+    define Windeco ButtonSize ButtonLarge
+fi
+
+if [ "$KDE_OPTIMIZE_KWRITE" = 1 ]; then
+    target=katerc
+    define General 'Show Full Path in Title' true
+
+    target=kwriterc
+    define 'General Options' ShowPath true
+fi
