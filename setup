@@ -7,7 +7,14 @@ for cfg in $(find . -maxdepth 1 -name 'config-*'); do
     . $cfg
 done
 
-. lib/config-check
+echo '==> Confirm Config'
+echo 'Edit `./config*` files before setup. Reference: `./samples/*`'
+echo
+echo PREFER_HOTCORNER=$PREFER_HOTCORNER
+echo DOUBLE_CLICK=$DOUBLE_CLICK
+echo SHUTDOWN_DIRECTLY=$SHUTDOWN_DIRECTLY
+echo OPTIMIZE_APPEARANCE=$OPTIMIZE_APPEARANCE
+echo OPTIMIZE_KWRITE=$OPTIMIZE_KWRITE
 
 printf 'Confirm to setup? (Y/n) '
 read r
@@ -16,19 +23,64 @@ case $r in
 *) exit ;;
 esac
 
-echo '==> Begin to setup'
+setcfg() {
+    kwriteconfig5 --file $target $1 $2 $3
+}
 
-./lib/tweak-system
-./lib/tweak-kde
-./lib/tweak-pkgs
+if [ "$PREFER_HOTCORNER" = 1 ]; then
+    target=kwinrc
+    setcfg ElectricBorders TopLeft ApplicationLauncher
+    setcfg ElectricBorders TopRight KRunner
+    setcfg Effect-desktopgrid BorderActivate 5
+    setcfg Effect-windowview BorderActivate 3
+fi
 
-echo '==> Finish'
+if [ "$DOUBLE_CLICK" = 1 ]; then
+    target=kdeglobals
+    setcfg KDE SingleClick false
+fi
 
-printf 'Reboot to apply? (Y/n) '
-read r
-case $r in
-'' | y | Y) ;;
-*)
-    sudo reboot
-    ;;
-esac
+if [ "$SHUTDOWN_DIRECTLY" = 1 ]; then
+    target=ksmserverrc
+    setcfg General confirmLogout false
+fi
+
+if [ "$OPTIMIZE_APPEARANCE" = 1 ]; then
+    target=kwinrc
+
+    setcfg TabBox ApplicationsMode 1
+    setcfg Plugins overviewEnabled true
+    setcfg Windows BorderlessMaximizedWindows true
+
+    setcfg Plugins kwin4_effect_dimscreenEnabled true
+    setcfg Windows Placement UnderMouse
+    setcfg org.kde.kdecoration2 ButtonsOnLeft MSF
+    setcfg Plugins slidebackEnabled true
+
+    setcfg MouseBindings CommandAllWheel 'Change Opacity'
+
+    setcfg MouseBindings CommandActiveTitlebar2 Close
+    setcfg MouseBindings CommandInactiveTitlebar2 Close
+    setcfg MouseBindings CommandTitlebarWheel Raise/Lower
+
+    target=kcminputrc
+    setcfg Mouse cursorSize 36
+
+    target=breezerc
+    setcfg Style MnemonicsMode MN_ALWAYS
+    setcfg Style ScrollBarAddLineButtons 1
+    setcfg Style ScrollBarSubLineButtons 1
+    setcfg Windeco ButtonSize ButtonLarge
+fi
+
+if [ "$OPTIMIZE_KWRITE" = 1 ]; then
+    target=katerc
+    setcfg General 'Show Full Path in Title' true
+
+    target=kwriterc
+    setcfg 'General Options' ShowPath true
+fi
+
+echo 'FINISHED!'
+echo
+echo 'Please Logout to Apply'

@@ -1,4 +1,0 @@
-export DNF_LOCK_KERNEL=1
-export DNF_ADD_TLP=1
-export DNF_ADD_TIMESHIFT=1
-export DNF_ADD_VIRT=1
